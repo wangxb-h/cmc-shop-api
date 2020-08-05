@@ -1,0 +1,116 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+<!-- 指向的是业务逻辑层的路径【扫描service中的注解】 -->
+    <context:component-scan base-package="com.fh.service"/>
+
+    <!-- 【1.】加载属性文件 【属性文件的好处{简单,明了}】   【相对于 source类型 的文件夹来说的    {也可以说是源文件夹}】-->
+    <!--【2.】location=""的路径指的是属性文件夹的路径(datasource.properties前缀可以改变但是后缀名.properties不能改变)  -->
+    <context:property-placeholder location="classpath:datasource.properties"/>
+    <!-- 配置数据源 -->
+    <bean id="dataBaseInfo" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" lazy-init="false">
+        <!--name可以改但是不建议改因为改的话 源代码也要改 -->
+        <property name="url">
+            <!-- 调用的是属性文件中的key也相当于获得value值 -->
+            <value>${jdbc.dbcp.url}</value>
+        </property>
+        <!--name可以改但是不建议改因为改的话 源代码也要改 -->
+        <property name="driverClassName">
+            <value>${jdbc.driverClassName}</value>
+        </property>
+        <!--name可以改但是不建议改因为改的话 源代码也要改 -->
+        <property name="username">
+            <value>${jdbc.username}</value>
+        </property>
+        <!--name可以改但是不建议改因为改的话 源代码也要改 -->
+        <property name="password">
+            <value>${jdbc.password}</value>
+        </property>
+        <!-- 连接池中的最大的连接数 -->
+        <property name="maxActive">
+            <value>${jdbc.maxActive}</value>
+        </property>
+        <!-- 最大等待的时间 (单位:毫秒) -->
+        <property name="maxWait">
+            <value>${jdbc.maxWait}</value>
+        </property>
+    </bean>
+    
+    
+    <!--属性值是复合数据类型【数组，java对象】  -->
+     <!--<property name="属性名" ref="bean的id"/> -->
+	 <!--<property name="属性名" ref="bean的id"></property>  -->
+
+    <!--生成sqlSession -->
+    <!--<bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+    <bean id="sqlSession" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
+        <!--ref="dataBaseInfo"引用的是上面的配置数据源的id名称
+               【name="dataSource"引用的是org.mybatis.spring.SqlSessionFactoryBean中的属性】  -->
+        <property name="dataSource" ref="dataBaseInfo" />
+        <!--  自动查找myBatis的xml配置文件，省掉sqlMapConfig.xml里的mappers手工配置 -->
+        <!--name调用的是类中的属性【value="classpath:mappers/*.xml"指明写sql语句的xml文件】  -->
+        <property name="mapperLocations" value="classpath:mapper/*.xml" />
+        <!--<property name="plugins">
+            <list>
+                &lt;!&ndash; 注册分页插件 &ndash;&gt;
+                <bean class="com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor" />
+            </list>
+        </property>-->
+		<property name="typeAliasesPackage" value="com.fh.entity"></property>
+    </bean>
+
+      <!-- 通过 MapperScannerConfigurer自动扫描指定basePackage中的所有的接口，并且
+    	把sqlSession与接口结合-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--name调用的是类中的属性  【value="com.fh.shop.backend.mapper"】指明的是mapper的包的路径  -->
+        <!-- 扫描所有包下的包下的类 -->
+        <property name="basePackage" value="com.fh.dao" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSession" />
+    </bean>
+
+    <!-- 配置事物注解 -->
+    <!--<tx:annotation-driven transaction-manager="transactionManager" />-->
+    <!-- 声明式事务管理 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataBaseInfo" />
+    </bean>
+    <!-- 拦截器方式配置事物 -->
+    	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+            <tx:attributes>
+                <tx:method name="add*" propagation="REQUIRED" />
+                <tx:method name="login*" propagation="REQUIRED" />
+                <tx:method name="check*" propagation="REQUIRED" />
+                <tx:method name="insert*" propagation="REQUIRED" />
+                <tx:method name="save*" propagation="REQUIRED" />
+                <tx:method name="creat*" propagation="REQUIRED" />
+                <tx:method name="update*" propagation="REQUIRED" />
+                <tx:method name="del*" propagation="REQUIRED" />
+                <tx:method name="remove*" propagation="REQUIRED" />
+                <tx:method name="get*" propagation="SUPPORTS" />
+                <tx:method name="find*" propagation="SUPPORTS" />
+                <tx:method name="select*" propagation="SUPPORTS" />
+                <tx:method name="load*" propagation="SUPPORTS" />
+                <tx:method name="search*" propagation="SUPPORTS" />
+                <tx:method name="datagrid*" propagation="SUPPORTS" />
+                <tx:method name="query*" read-only="true"/>
+                <tx:method name="*" read-only="true"/>
+            </tx:attributes>
+        </tx:advice>
+
+        <aop:config>
+            <aop:pointcut id="transactionPointcut" expression="execution(* com.fh.service.impl.*.*(..))" />
+            <aop:advisor pointcut-ref="transactionPointcut" advice-ref="transactionAdvice" />
+        </aop:config>
+</beans>

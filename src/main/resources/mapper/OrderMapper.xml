@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fh.dao.OrderMapper">
+
+
+    <!--查询总条数-->
+    <select id="getCount" resultType="java.lang.Long" parameterType="java.lang.String">
+          select count(*) from shop_order
+          where vipId=#{iphone}
+    </select>
+
+
+    <!--查询订单信息-->
+    <select id="selectOrderMessage" parameterType="com.fh.entity.OrderInfo" resultType="com.fh.entity.OrderInfo">
+            select o.id,o.addressId,o.payType,o.proTypeCount,o.totalMoney,o.payStatus,o.createDate,o.vipId,a.name as addressName
+              from shop_order o left join shop_address a on o.addressId=a.id
+              where o.vipId=#{orderInfo.vipId}
+            limit #{orderInfo.start},#{orderInfo.length}
+    </select>
+
+    <!--查询订单商品详情-->
+    <select id="selectOrderXq" parameterType="java.lang.Integer" resultType="com.fh.entity.OrderInfo">
+            select op.orderId,p.productName from shop_order_product op left join shop_product p on op.productId=p.id
+            where op.orderId=#{orderId}
+    </select>
+    <!--查询订单详情-->
+
+</mapper>

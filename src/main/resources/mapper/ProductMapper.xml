@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fh.dao.ProductMapper">
+
+    <sql id="BaseColumnUpdateList">
+    ID,PRODUCTNAME,PROIMAGE,PRODUCTPRICE,ISPUT,ISHOT,CREATETIME,BRANDID,AREAIDS,TYPEIDS,STORYCOUNT
+    </sql>
+
+    <select id="findProductByTypeId" resultType="com.fh.entity.ProductInfo" parameterType="com.fh.entity.ProductInfo">
+        select
+        <include refid="BaseColumnUpdateList"/>
+        from
+        shop_product
+        <where>
+        <if test="typeIds!=null and typeIds!=''">
+            typeIds like CONCAT ('%',#{typeIds},'%')
+        </if>
+        </where>
+    </select>
+
+    <select id="findHotAll" resultType="com.fh.entity.ProductInfo">
+            select productName,productPrice,proImage from shop_product where ishot=1
+    </select>
+
+    <select id="findProductAllByProductId" parameterType="java.lang.Integer" resultType="com.fh.entity.ProductInfo">
+           select
+           <include refid="BaseColumnUpdateList"/>
+           from shop_product where id=#{id}
+    </select>
+
+    <select id="findAreaNameByAreaIds" resultType="java.lang.String" parameterType="java.lang.Integer">
+            select areaName from shop_area where id=#{areaId}
+    </select>
+
+
+    <!--根据商品id查询商品-->
+    <select id="findProduct" parameterType="java.lang.Integer" resultType="com.fh.entity.ProductCarInfo">
+            select
+                  <include refid="BaseColumnUpdateList"/>
+                  from shop_product where id=#{id}
+    </select>
+
+    <!--保证 商品的超卖问题    uopdate  add  delete  返回影响的数据条数-->
+    <update id="updateProductCount">
+          update  shop_product set storyCount=storyCount-#{count} where id=#{id} and storyCount-#{count}>=0
+    </update>
+
+</mapper>

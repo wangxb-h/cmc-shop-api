@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fh.dao.ProductCarMapper">
+
+
+    <!--根据商品id查询商品-->
+    <select id="findProductCart" parameterType="java.lang.Integer" resultType="com.fh.entity.ProductCarInfo">
+            select sp.*,sp.proImage productImg from shop_product sp where id=#{id}
+    </select>
+
+</mapper>

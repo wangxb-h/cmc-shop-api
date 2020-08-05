@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fh.dao.OrderProductMapper">
+
+
+    <!--生成订单详情-->
+    <insert id="batchAdd">
+        insert into shop_order_product (productId,orderId,count) values
+        <foreach collection="list" item="pro" separator=",">
+            (#{pro.productId},#{id},#{pro.count})
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fh.dao.AddressMapper">
+
+
+    <!--根据商品id查询商品-->
+    <select id="findAddress" parameterType="java.lang.String" resultType="com.fh.entity.AddressInfo">
+            select * from shop_address where VipId=#{iphone}
+    </select>
+
+    <select id="findAreaName" parameterType="java.lang.Integer" resultType="java.lang.String">
+              select areaName from shop_area where id=#{areaId}
+    </select>
+
+    <insert id="addRess" parameterType="com.fh.entity.AddressInfo">
+          insert into shop_address (VipId,name,detailAdd,areaIds,iphone,createDate) values (#{VipId},#{name},#{detailAdd},#{areaIds},#{iphone},#{createDate});
+    </insert>
+
+    <select id="findAddressAll" parameterType="java.lang.String" resultType="com.fh.entity.AddressInfo">
+          select * from shop_address where VipId=#{iphone}
+    </select>
+
+    <update id="updateIsCheckFalse" parameterType="com.fh.entity.AddressInfo">
+          update shop_address set isCheck=#{isCheck} where id=#{id}
+    </update>
+
+    <update id="updateIsCheckTrue" parameterType="com.fh.entity.AddressInfo">
+          update shop_address set isCheck=#{isCheck} where id=#{id}
+    </update>
+
+
+</mapper>
